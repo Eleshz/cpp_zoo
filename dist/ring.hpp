@@ -12,6 +12,8 @@ namespace detail {
 } // namespace zoo
 // END INCLUDE: 
 
+namespace zd = zoo::detail;
+
 namespace zoo {
     
 } // namespace zoo
