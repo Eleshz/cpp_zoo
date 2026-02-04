@@ -17,41 +17,33 @@ add_subdirectory(lib/Catch2)
 # Define source and header directories
 set(HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
-set(DIST_DIR ${CMAKE_CURRENT_BINARY_DIR}/dist)
+set(DIST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dist)
 set(COMMON_HEADER ${HEADER_DIR}/common.hpp)
 
 # Create dist directory
 file(MAKE_DIRECTORY ${DIST_DIR})
 
-# Find all header files in src directory
+# Find all header files in src directory, excluding common.hpp
 file(GLOB_RECURSE HEADER_FILES "${HEADER_DIR}/*.hpp" "${HEADER_DIR}/*.h")
+list(FILTER HEADER_FILES EXCLUDE REGEX "common\\.hpp$")
 
 # Find all test files
 file(GLOB TEST_FILES "${TEST_DIR}/*.cpp" "${TEST_DIR}/*.hpp")
 
-# Custom command to generate headers in dist directory
+# Custom command to generate headers in dist directory using amalgamation script
 foreach(header_file ${HEADER_FILES})
     get_filename_component(header_name ${header_file} NAME)
     set(generated_header ${DIST_DIR}/${header_name})
 
-    # Only process if there's a common header to combine with
-    if(EXISTS ${COMMON_HEADER})
-        add_custom_command(
-            OUTPUT ${generated_header}
-            COMMAND ${CMAKE_COMMAND} -E copy ${COMMON_HEADER} ${generated_header}
-            COMMAND bash -c "cat ${header_file} >> ${generated_header}"
-            DEPENDS ${COMMON_HEADER} ${header_file}
-            COMMENT "Generating ${header_name} from common header and specific header"
-        )
-    else()
-        # If no common header, just copy the original
-        add_custom_command(
-            OUTPUT ${generated_header}
-            COMMAND ${CMAKE_COMMAND} -E copy ${header_file} ${generated_header}
-            DEPENDS ${header_file}
-            COMMENT "Copying ${header_name} to dist directory"
-        )
-    endif()
+    # Use the amalgamation script to combine all included headers into a single file
+    # Run from the source directory so the script can find included files properly
+    add_custom_command(
+        OUTPUT ${generated_header}
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate.sh ${CMAKE_CURRENT_SOURCE_DIR}/src/${header_name} ${generated_header}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${header_file} ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate.sh
+        COMMENT "Amalgamating ${header_name} using amalgamation script"
+    )
 
     list(APPEND GENERATED_HEADERS ${generated_header})
 endforeach()
