@@ -1,0 +1,16 @@
+build/
+lib/
+.vscode/
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.dll
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+build.ninja
+ninja_log
+ninja_deps
+CTestTestfile.cmake
