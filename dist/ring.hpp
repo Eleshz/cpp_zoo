@@ -1,5 +1,7 @@
-#ifndef GENERATED_
-#define GENERATED_
+#ifndef GENERATED_RING
+#define GENERATED_RING
+
+#include <cstddef>
 
 // BEGIN INCLUDE: common.hpp
 
@@ -12,10 +14,11 @@ namespace detail {
 } // namespace zoo
 // END INCLUDE: 
 
+
 namespace zd = zoo::detail;
 
 namespace zoo {
     
 } // namespace zoo
 
-#endif // GENERATED_
+#endif // GENERATED_RING
